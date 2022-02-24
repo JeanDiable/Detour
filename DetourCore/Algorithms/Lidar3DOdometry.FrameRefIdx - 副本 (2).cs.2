@@ -1,0 +1,540 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using DetourCore.CartDefinition;
+using DetourCore.Misc;
+using MoreLinq;
+using OpenCvSharp;
+using Math = System.Math;
+
+namespace DetourCore.Algorithms
+{
+    public partial class Lidar3DOdometry
+    {
+        public class Frame2FrameQueryerTypeMechanicalRotation //机械式旋转雷达的scan2scan queryer.
+        {
+            public static int toId(int x, int y, int z)
+            {
+                return (x * 1140671485 + 12820163) ^ (y * 134775813 + 1) ^ (z * 1103515245 + 12345);
+            }
+            
+            public float smallBox = 150;
+            public float bigBox = 500;
+            public float altRes = 4.0f; //20m away.
+            public float aziRes = 2.0f; //20m away.
+            public float maxDist = 1000 * 1000;
+            
+            private Lidar3D.Lidar3DFrame template;
+
+            private Dictionary<int, List<int>> mapSmall=new();
+            private Dictionary<int, List<int>> mapBig = new();
+            private Dictionary<int, List<int>> mapPolar = new();
+            private planeDef[] planes;
+
+            public float planeRadius = 600;
+            
+            // 双形态：锥形加盒子型。
+            public Frame2FrameQueryerTypeMechanicalRotation(Lidar3D.Lidar3DFrame it)
+            {
+                template = it;
+                var tic = G.watch.ElapsedMilliseconds;
+                
+                // assume altitude first:
+                float alt0 = template.rawAZD[0].altitude;
+                List<float> alts = new List<float>() {alt0};
+                for (int i = 1; i < template.rawAZD.Length; ++i)
+                {
+                    if (alts.Contains(template.rawAZD[i].altitude))
+                        break;
+                    alts.Add(template.rawAZD[i].altitude);
+                }
+
+                var seqs = alts.Select((p, i) => new {p, i}).OrderBy(pck => pck.p).Select(pck => pck.i).ToArray();
+                var nscans = alts.Count;
+                var up = new int[alts.Count];
+                up[0] = -1;
+                for (int i = 1; i < nscans; ++i)
+                    up[seqs[i]] = seqs[i - 1];
+                var down = new int[alts.Count];
+                down[nscans-1] = -1;
+                for (int i = 0; i < nscans - 1; ++i)
+                    down[seqs[i]] = seqs[i + 1];
+
+
+                planes = new planeDef[template.reducedAZD.Length];
+                var querys = new int[9];
+                for (int i = 0; i < template.reducedXYZ.Length; ++i)
+                {
+                    int idx = template.reduceIdx[i];
+                    querys[0] = idx;
+                    var ptr = 1;
+
+                    void testIdx(int nidx)
+                    {
+                        if (0 <= nidx && nidx < template.rawXYZ.Length && 
+                            template.rawAZD[nidx].d > 0 &&
+                            (template.rawXYZ[nidx] - template.reducedXYZ[i]).LengthSquared() <
+                            planeRadius * planeRadius)
+                            querys[ptr++] = nidx;
+                    }
+
+                    int alt = idx % nscans;
+                    int az = idx - alt;
+                    if (up[alt] != -1)
+                    {
+                        testIdx(az + nscans + up[alt]);
+                        testIdx(az - nscans + up[alt]);
+                        testIdx(az + up[alt]);
+                    }
+
+                    if (down[alt] != -1)
+                    {
+                        testIdx(az + nscans + down[alt]);
+                        testIdx(az - nscans + down[alt]);
+                        testIdx(az + down[alt]);
+                    }
+
+                    if (ptr < 3) continue;
+
+                    var points = querys.Take(ptr).Select(id => template.rawXYZ[id]).ToArray();
+                    // var tryplane = ExtractPlaneCV(points);
+                    // var tryplane = ExtractPlane3P(points.Take(3).ToArray());
+                    var tryplane = querys.Length==3?ExtractPlane3P(points): ExtractPlane(points);
+
+                    if (tryplane.maxe > 30)
+                    {
+                        // if ((tryplane.xyz - template.rawXYZ[idx]).Length() > 1000)
+                        // {
+                        //     Console.WriteLine("?");
+                        // }
+                        planes[i] = tryplane;
+                    }
+                }
+
+                Console.WriteLine($"plane={G.watch.ElapsedMilliseconds - tic}ms");
+                // return;
+
+                void addSmall(int h, int i)
+                {
+                    if (mapSmall.TryGetValue(h, out var ls1))
+                        ls1.Add(i);
+                    else mapSmall[h] = new List<int> { i };
+                }
+                for (int i = 0; i < template.reducedXYZ.Length; ++i)
+                {
+                    int xl = (int) Math.Floor(template.reducedXYZ[i].X / smallBox);
+                    int xu = xl+1;
+                    int yl = (int) Math.Floor(template.reducedXYZ[i].Y / smallBox);
+                    int yu = yl+1;
+                    int zl = (int) Math.Floor(template.reducedXYZ[i].Z / smallBox);
+                    int zu = zl+1;
+                    addSmall(toId(xl, yl, zl),i);
+                    addSmall(toId(xl, yl, zu),i);
+                    addSmall(toId(xl, yu, zl),i);
+                    addSmall(toId(xl, yu, zu),i);
+                    addSmall(toId(xu, yl, zl),i);
+                    addSmall(toId(xu, yl, zu),i);
+                    addSmall(toId(xu, yu, zl),i);
+                    addSmall(toId(xu, yu, zu),i);
+                }
+
+                void addBig(int h, int i)
+                {
+                    if (mapBig.TryGetValue(h, out var ls1))
+                        ls1.Add(i);
+                    else mapBig[h] = new List<int> { i };
+                }
+                for (int i = 0; i < template.reducedXYZ.Length; ++i)
+                {
+                    int xl = (int) Math.Floor(template.reducedXYZ[i].X / bigBox);
+                    int xu = xl+1;
+                    int yl = (int) Math.Floor(template.reducedXYZ[i].Y / bigBox);
+                    int yu = yl+1;
+                    int zl = (int) Math.Floor(template.reducedXYZ[i].Z / bigBox);
+                    int zu = zl+1;
+                    addBig(toId(xl, yl, zl), i);
+                    addBig(toId(xl, yl, zu), i);
+                    addBig(toId(xl, yu, zl), i);
+                    addBig(toId(xl, yu, zu), i);
+                    addBig(toId(xu, yl, zl), i);
+                    addBig(toId(xu, yl, zu), i);
+                    addBig(toId(xu, yu, zl), i);
+                    addBig(toId(xu, yu, zu), i);
+                }
+
+                void addPolar(int h, int i)
+                {
+                    if (mapPolar.TryGetValue(h, out var ls1))
+                        ls1.Add(i);
+                    else mapPolar[h] = new List<int> { i };
+                }
+                for (int i = 0; i < template.reducedAZD.Length; ++i)
+                {
+                    int al = (int) Math.Floor(template.reducedAZD[i].altitude / altRes);
+                    int au = al+1;
+                    int azl = (int) Math.Floor(template.reducedAZD[i].azimuth / aziRes);
+                    int azu = azl+1;
+                    int dl = (int) Math.Floor(template.reducedAZD[i].d / bigBox);
+                    int du = dl+1;
+                    addPolar(toId(al, azl, dl),i);
+                    addPolar(toId(al, azl, du),i);
+                    addPolar(toId(al, azu, dl),i);
+                    addPolar(toId(al, azu, du),i);
+                    addPolar(toId(au, azl, dl),i);
+                    addPolar(toId(au, azl, du),i);
+                    addPolar(toId(au, azu, dl),i);
+                    addPolar(toId(au, azu, du),i);
+                }
+            }
+
+            public struct nnret
+            {
+                public int idx;
+                public bool plane;
+                public Vector3 d;
+                public float w;
+            }
+
+            
+            public nnret NN(Vector3 v3, float az, float alt, float d)
+            {
+                var x = v3.X;
+                var y = v3.Y;
+                var z = v3.Z;
+
+                var src = 0;
+                nnret best = new nnret() {idx = -1};
+                float d1 = float.MaxValue;
+
+                var nid = toId((int) Math.Round(x / smallBox), (int) Math.Round(y / smallBox),
+                    (int) Math.Round(z / smallBox));
+                if (mapSmall.ContainsKey(nid))
+                    foreach (var i in mapSmall[nid])
+                    {
+                        var dd = (v3 - template.reducedXYZ[i]).LengthSquared();
+                        if (d1 > dd && dd< maxDist)
+                        {
+                            best.idx = i;
+                            d1 = dd;
+                            src = 1;
+                        }
+                    }
+
+                if (best.idx >= 0)
+                    goto good;
+
+                nid = toId((int)Math.Round(x / bigBox), (int)Math.Round(y / bigBox),
+                    (int)Math.Round(z / bigBox));
+                if (mapBig.ContainsKey(nid))
+                    foreach (var i in mapBig[nid])
+                    {
+                        var dd = (v3 - template.reducedXYZ[i]).LengthSquared();
+                        if (d1 > dd && dd < maxDist)
+                        {
+                            best.idx = i;
+                            d1 = dd;
+                            src = 2;
+                        }
+                    }
+
+                if (best.idx >= 0)
+                    goto good;
+
+
+                nid = toId((int)Math.Round(alt / altRes), (int)Math.Round(az / aziRes),
+                    (int)Math.Round(d / bigBox));
+                if (mapPolar.ContainsKey(nid))
+                    foreach (var i in mapPolar[nid])
+                    {
+                        var dd = (v3 - template.reducedXYZ[i]).LengthSquared();
+                        if (d1 > dd && dd < maxDist)
+                        {
+                            best.idx = i;
+                            d1 = dd;
+                            src = 3;
+                        }
+                    }
+
+                if (best.idx >= 0)
+                    goto good;
+
+                return new nnret() {idx = -1};
+
+                good:
+                if (planes[best.idx] != null)
+                {
+                    var projected = ProjectPoint2Plane(v3, planes[best.idx]);
+                    // if ((projected.vec3 - v3).Length()>1000)
+                    //     Console.WriteLine("???");
+                    return new nnret()
+                        {plane = true, d = projected.vec3 - v3, idx = best.idx, w = projected.w};
+                }
+
+                return new nnret() {plane = false, d = template.reducedXYZ[best.idx] - v3, idx = best.idx, w = 0.01f};
+            }
+
+
+            public class planeDef
+            {
+                public Vector3 xyz, lmn;
+                public float maxe;
+
+                public static planeDef operator+(planeDef a, planeDef b)
+                {
+                    var v3 = a.lmn + b.lmn;
+                    v3 = v3 / v3.Length();
+                    return new planeDef() {xyz = (a.xyz + b.xyz) / 2, lmn = v3, maxe = Math.Max(a.maxe, b.maxe)};
+                }
+            }
+
+
+            public planeDef ExtractPlane(Vector3[] neighbors) // no less than 3 points.
+            {
+                var center = new Vector3();
+                for (var i = 0; i < neighbors.Length; ++i)
+                {
+                    center += neighbors[i];
+                }
+
+                center = center / neighbors.Length;
+                var V3s = new Vector3[neighbors.Length];
+                for (var i = 0; i < neighbors.Length; ++i)
+                    V3s[i] = neighbors[i] - center;
+                var A = new float[9];
+                for (var i = 0; i < neighbors.Length; ++i)
+                {
+                    A[0] += V3s[i].X * V3s[i].X;
+                    A[1] += V3s[i].X * V3s[i].Y;
+                    A[2] += V3s[i].X * V3s[i].Z;
+                    A[4] += V3s[i].Y * V3s[i].Y;
+                    A[5] += V3s[i].Y * V3s[i].Z;
+                    A[8] += V3s[i].Z * V3s[i].Z;
+                }
+
+                A[3] = A[1];
+                A[6] = A[2];
+                A[7] = A[5];
+
+                double M_SQRT3 = 1.73205080756887729352744634151f;
+
+                float[] eigvec;
+                double eigMax = 0;
+                //[0-8]=00, 01, 02, 10, 11, 12, 20, 21, 22
+                //       0,  1   2   3   4   5   6   7   8
+                float a = A[0], b = A[4], c = A[8], d = A[1], e = A[5], f = A[2];
+                float de = d * e; // d * e
+                float dd = d * d; // d^2
+                float ee = e * e; // e^2
+                float ff = f * f; // f^2
+                var m = a + b + c;
+                // a*b + a*c + b*c - d^2 - e^2 - f^2
+                var c1 = (a * b + a * c + b * c) - (dd + ee + ff);
+                // c*d^2 + a*e^2 + b*f^2 - a*b*c - 2*f*d*e)
+                var c0 = c * dd + a * ee + b * ff - a * b * c - 2.0 * f * de;
+
+                var p = m * m - 3.0 * c1;
+                var q = m * (p - (3.0 / 2.0) * c1) - (27.0 / 2.0) * c0;
+                var sqrt_p = Math.Sqrt(Math.Abs(p));
+
+                var phi = 27.0 * (0.25 * c1 * c1 * (p - c1) + c0 * (q + 27.0 / 4.0 * c0));
+                phi = (1.0 / 3.0) * Math.Atan2(Math.Sqrt(Math.Abs(phi)), q);
+
+                var cos = sqrt_p * Math.Cos(phi);
+                var sin = (1.0 / M_SQRT3) * sqrt_p * Math.Sin(phi);
+
+                var wy = (1.0 / 3.0) * (m - cos);
+                var wz = wy + sin;
+                var wx = wy + cos;
+                wy -= sin;
+
+                var eigmin = wx;
+                if (wy < eigmin) eigmin = wy;
+                if (wz < eigmin) eigmin = wz;
+
+                eigMax = wx;
+                if (eigMax < wy) eigMax = wy;
+                if (eigMax < wz) eigMax = wz;
+
+                void getEigv(float v)
+                {
+                    var row0 = new[] {A[0] - v, A[1], A[2]};
+                    var row1 = new[] {A[3], A[4] - v, A[5]};
+                    var row2 = new[] {A[6], A[7], A[8] - v};
+
+                    var r0xr1 = new float[]
+                    {
+                        row0[1] * row1[2] - row0[2] * row1[1],
+                        row0[2] * row1[0] - row0[0] * row1[2],
+                        row0[0] * row1[1] - row0[1] * row1[0]
+                    };
+                    var r0xr2 = new float[]
+                    {
+                        row0[1] * row2[2] - row0[2] * row2[1],
+                        row0[2] * row2[0] - row0[0] * row2[2],
+                        row0[0] * row2[1] - row0[1] * row2[0]
+                    };
+                    var r1xr2 = new float[]
+                    {
+                        row1[1] * row2[2] - row1[2] * row2[1],
+                        row1[2] * row2[0] - row1[0] * row2[2],
+                        row1[0] * row2[1] - row1[1] * row2[0]
+                    };
+
+                    var d0 = r0xr1[0] * r0xr1[0] + r0xr1[1] * r0xr1[1] + r0xr1[2] * r0xr1[2];
+                    var d1 = r0xr2[0] * r0xr2[0] + r0xr2[1] * r0xr2[1] + r0xr2[2] * r0xr2[2];
+                    var d2 = r1xr2[0] * r1xr2[0] + r1xr2[1] * r1xr2[1] + r1xr2[2] * r1xr2[2];
+                    eigvec = r0xr1;
+                    var dmax = d0;
+
+
+                    if (d1 > dmax)
+                    {
+                        dmax = d1;
+                        eigvec = r0xr2;
+                    }
+
+                    if (d2 > dmax)
+                    {
+                        eigvec = r1xr2;
+                    }
+                }
+
+                getEigv((float) eigmin);
+
+                var lmn = new Vector3(eigvec[0], eigvec[1], eigvec[2]);
+                return new planeDef()
+                {
+                    xyz = center,
+                    maxe = (float)Math.Sqrt(eigMax) * 2,
+                    lmn = lmn/lmn.Length()
+                };
+            }
+
+            public planeDef ExtractPlane3P(Vector3[] neighbors) // no less than 3 points.
+            {
+                var center = new Vector3();
+                for (var i = 0; i < neighbors.Length; ++i)
+                {
+                    center += neighbors[i];
+                }
+
+                center /= neighbors.Length;
+                var v1 = neighbors[1] - neighbors[0];
+                var v2 = neighbors[2] - neighbors[0];
+                var n = Vector3.Cross(v1, v2);
+                n = n / n.Length();
+
+                return new planeDef()
+                {
+                    xyz = center,
+                    maxe = LessMath.Sqrt(Math.Max(v1.LengthSquared(), v2.LengthSquared())),
+                    lmn = n
+                };
+            }
+
+            public planeDef ExtractPlaneCV(Vector3[] neighbors) // no less than 3 points.
+            {
+                var nNeighbor = neighbors.Length;
+                
+                if (nNeighbor == 3)
+                {
+                    var center = new Vector3();
+                    for (var i = 0; i < nNeighbor; ++i)
+                    {
+                        center += neighbors[i];
+                    }
+
+                    center /= nNeighbor;
+                    var v1 = neighbors[1] - neighbors[0];
+                    var v2 = neighbors[2] - neighbors[0];
+                    var n = Vector3.Cross(v1, v2);
+                    n = n / n.LengthSquared();
+
+                    return new planeDef()
+                    {
+                        xyz = center,
+                        maxe = LessMath.Sqrt(Math.Max(v1.LengthSquared(), v2.LengthSquared())),
+                        lmn = n
+                    };
+                }
+                
+                Mat x = new Mat(3, nNeighbor, MatType.CV_32F, Scalar.All(0));
+                for (var i = 0; i < nNeighbor; ++i)
+                {
+                    x.At<float>(0, i) = neighbors[i].X;
+                    x.At<float>(1, i) = neighbors[i].Y;
+                    x.At<float>(2, i) = neighbors[i].Z;
+                }
+                
+                Mat meanBar = new Mat(3, 1, MatType.CV_32F, Scalar.All(0));
+                Cv2.Reduce(x, meanBar, ReduceDimension.Column, ReduceTypes.Avg, MatType.CV_32F);
+                
+                Mat mean = new Mat(3, nNeighbor, MatType.CV_32F, Scalar.All(0));
+                Cv2.Repeat(meanBar, 1, nNeighbor, mean);
+                
+                Mat meaned = x - mean;
+                Mat meanedT = new Mat(nNeighbor, 3, MatType.CV_32F, Scalar.All(0));
+                Cv2.Transpose(meaned, meanedT);
+                Mat p = meaned * meanedT;
+                p = p * (1f / (nNeighbor - 1));
+                
+                Mat matE = new Mat(1, 3, MatType.CV_32F, Scalar.All(0));
+                Mat matV = new Mat(3, 3, MatType.CV_32F, Scalar.All(0));
+                Cv2.Eigen(p, matE, matV);
+                var idx = -1;
+                var minEigen = float.MaxValue;
+                var maxEigen = float.MinValue;
+                for (var i = 0; i < 3; ++i)
+                {
+                    var v = matE.At<float>(0, i);
+                    if (v < minEigen)
+                    {
+                        minEigen = v;
+                        idx = i;
+                    }
+                
+                    maxEigen = Math.Max(maxEigen, v);
+                }
+                
+                return new planeDef()
+                {
+                    xyz=new Vector3(meanBar.At<float>(0, 0),
+                        meanBar.At<float>(0, 1),
+                        meanBar.At<float>(0, 2)),
+                    lmn=new Vector3(matV.At<float>(idx, 0),
+                        matV.At<float>(idx, 1),
+                        matV.At<float>(idx, 2)),
+                    maxe = (float) Math.Sqrt(maxEigen)*2,
+                };
+            }
+            public struct proj
+            {
+                public Vector3 vec3;
+                public float w;
+            }
+            public proj ProjectPoint2Plane(Vector3 p, planeDef target)
+            {
+                var norm = target.lmn;
+
+                var v = p - target.xyz;
+                var dist = Vector3.Dot(v, norm);
+                var projected = p - dist * norm;
+
+                var rp = projected - target.xyz;
+                var diff = rp.Length();
+                float w = 1;
+                var clamp = target.maxe;
+                // if (diff > clamp)
+                // {
+                //     rp = rp * clamp / diff;
+                //     projected = target.xyz + rp;
+                //     w = clamp / diff;
+                // }
+
+                return new proj() {vec3 = projected, w = w};
+            }
+        }
+    }
+}

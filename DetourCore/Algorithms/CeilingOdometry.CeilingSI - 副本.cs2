@@ -1,0 +1,209 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using DetourCore.Misc;
+
+namespace DetourCore.Algorithms
+{
+    public partial class CeilingOdometry
+    {
+        public struct CIdx
+        {
+            public float x, y;
+            public int id, id2;
+            public bool p;
+            public float nx, ny;
+        }
+
+        public class CeilingSI
+        {
+            public Vector3[] oxyzs;
+
+            private int[] arrSmall = new int[Configuration.conf.guru.SpatialIndex2StageCache*8];
+            private int[] arrBig = new int[Configuration.conf.guru.SpatialIndex2StageCache*8];
+            private int ptrSmall = 0;
+            private int ptrBig = 0;
+            private const int strideSmall = 16;
+            private const int strideBig = 256;
+
+            Dictionary<int, int> mapSmall = new();
+            Dictionary<int, int> mapBig = new();
+
+            public int rectSmall = 35;
+            public int rectBig = 120;
+            public int heightGap = 30;
+
+            public int toId(int x, int y, int z)
+            {
+                return z * 1024 * 1024 * 1024 + x * 1024 * 32 + y;
+            }
+
+            public void Init()
+            {
+                mapBig.Clear();
+                mapSmall.Clear();
+                ptrSmall = 0;
+                ptrBig = 0;
+
+                var badCnt = 0;
+
+                // List<(Vector3 v3, int idx)> smallCentroids = new List<(Vector3 v3, int idx)>();
+                void addSmall(Vector3 v3, int i, int dx, int dy)
+                {
+                    var h = LessMath.toId(
+                        (int) (v3.X / rectSmall) + dx,
+                        (int) (v3.Y / rectSmall) + dy,
+                        (int) (v3.Z / heightGap));
+                    if (!mapSmall.TryGetValue(h, out var lsPtr))
+                    {
+                        lsPtr = mapSmall[h] = (ptrSmall++) * strideSmall;
+                        // smallCentroids.Add((new Vector3(v3.X + dx * rectSmall, v3.Y + dy * rectSmall, v3.Z), h));
+                    }
+
+                    var id = (arrSmall[lsPtr] += 1);
+                    if (id < strideSmall)
+                        arrSmall[lsPtr + id] = i;
+                    else
+                    {
+                        arrSmall[lsPtr + G.rnd.Next() % (strideSmall - 1) + 1] = i;
+                        badCnt += 1;
+                    }
+                }
+
+                for (var index = 0; index < oxyzs.Length; index++)
+                {
+                    var xy = oxyzs[index];
+                    for (int l = 0; l < 9; ++l)
+                        addSmall(xy, index, xx[l], yy[l]);
+                }
+
+                var badCntBig = 0;
+                void addBig(int h, int i)
+                {
+                    if (!mapBig.TryGetValue(h, out var lsPtr))
+                        lsPtr = mapBig[h] = (ptrBig++) * strideBig;
+                    var id = (arrBig[lsPtr] += 1);
+                    if (id < strideBig)
+                        arrBig[lsPtr + id] = i;
+                    else
+                    {
+                        arrBig[lsPtr + G.rnd.Next() % (strideBig - 1) + 1] = i;
+                        badCntBig += 1;
+                    }
+                }
+                for (var index = 0; index < oxyzs.Length; index++)
+                {
+                    var xyz = oxyzs[index];
+                    for (int l = 0; l < 9; ++l)
+                    {
+                        addBig(LessMath.toId(
+                                (int) (xyz.X / rectBig) + xx[l],
+                                (int) (xyz.Y / rectBig) + yy[l],
+                                (int) (xyz.Z / heightGap)),
+                            index);
+                    }
+                }
+            }
+
+            int[] xx = { -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+            int[] yy = { -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+            
+
+            public CIdx NN(Vector3 pt)
+            {
+                CIdx best1 = new CIdx() { id = -1 };
+                CIdx best2 = new CIdx() { id = -1 };
+                float d1 = float.MaxValue;
+                float d2 = float.MaxValue;
+                var id1 = LessMath.toId((int) ((pt.X) / rectSmall),
+                    (int) ((pt.Y) / rectSmall),
+                    (int) (pt.Z / heightGap));
+                // Vector4 vec0 = new Vector4(x, y, x, y);
+
+                if (mapSmall.TryGetValue(id1, out var p1))
+                {
+                    for (var j = 1; j <= arrSmall[p1] && j < strideSmall; ++j)
+                    {
+                        var id = arrSmall[p1 + j];
+                        var p = oxyzs[id];
+                        // var myd = (p - pt).LengthSquared();
+                        var myd = (p.X - pt.X) * (p.X - pt.X) +
+                                  (p.Y - pt.Y) * (p.Y - pt.Y) +
+                                  (p.Z - pt.Z) * (p.Z - pt.Z) * 5;
+                        if (myd > rectSmall * rectSmall) 
+                            continue;
+                        if (myd < d1)
+                        {
+                            d2 = d1;
+                            best2 = best1;
+                            d1 = myd;
+                            best1 = new CIdx { id = id, x = p.X, y = p.Y };
+                        }
+                        else if (myd < d2 && myd > d1)
+                        {
+                            d2 = myd;
+                            best2 = new CIdx { id = id, x = p.X, y = p.Y };
+                        }
+                    }
+                }
+
+                if (best2.id != -1)
+                {
+                    // todo: point to line in 3D!
+                    float lxB = best2.x - best1.x, lyB = best2.y - best1.y, dABdB = lxB * lxB + lyB * lyB;
+                    float dd = LessMath.Sqrt(lxB * lxB + lyB * lyB) + 0.001f;
+                    float u2C = ((pt.X - best1.x) * lxB + (pt.Y - best1.y) * lyB) / dABdB;
+                    if (u2C < -0) u2C = -0f;
+                    if (u2C > 1f) u2C = 1f;
+                    float pCx = best1.x + u2C * lxB; // predicted point perpendicular
+                    float pCy = best1.y + u2C * lyB;
+                    return new CIdx() { id = best1.id, id2=best2.id, x = pCx, y = pCy, p = true, nx = lyB / dd, ny = -lxB / dd };
+                }
+
+                var idBig = LessMath.toId((int)((pt.X) / rectBig),
+                    (int)((pt.Y) / rectBig),
+                    (int)(pt.Z / heightGap));
+
+                if (mapBig.TryGetValue(idBig, out var p2))
+                {
+                    for (var j = 1; j <= arrBig[p2] && j < strideBig; ++j)
+                    {
+                        var id = arrBig[p2 + j];
+                        var p = oxyzs[id];
+                        // var myd = (p - pt).LengthSquared();
+                        var myd = (p.X - pt.X) * (p.X - pt.X) +
+                                  (p.Y - pt.Y) * (p.Y - pt.Y) +
+                                  (p.Z - pt.Z) * (p.Z - pt.Z) * 5;
+                        if (myd > rectBig * rectBig) continue;
+                        if (myd < d1)
+                        {
+                            d2 = d1;
+                            best2 = best1;
+                            d1 = myd;
+                            best1 = new CIdx { id = id, x = p.X, y = p.Y };
+                        }
+                        else if (myd < d2 && myd > d1)
+                        {
+                            d2 = myd;
+                            best2 = new CIdx { id = id, x = p.X, y = p.Y };
+                        }
+                    }
+                }
+                if (best2.id != -1)
+                {
+                    // todo: point to line in 3D!
+                    float lxB = best2.x - best1.x, lyB = best2.y - best1.y, dABdB = lxB * lxB + lyB * lyB;
+                    float dd = LessMath.Sqrt(lxB * lxB + lyB * lyB) + 0.001f;
+                    float u2C = ((pt.X - best1.x) * lxB + (pt.Y - best1.y) * lyB) / dABdB;
+                    if (u2C < -0) u2C = -0f;
+                    if (u2C > 1f) u2C = 1f;
+                    float pCx = best1.x + u2C * lxB; // predicted point perpendicular
+                    float pCy = best1.y + u2C * lyB;
+                    return new CIdx() { id = best1.id, id2=best2.id, x = pCx, y = pCy, p = true, nx = lyB / dd, ny = -lxB / dd };
+                }
+
+                return best1;
+            }
+        }
+    }
+}

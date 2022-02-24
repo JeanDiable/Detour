@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\OpenCvSharp4.runtime.win.4.5.3.20211228\build\net461\OpenCvSharp4.runtime.win.props" Condition="Exists('..\packages\OpenCvSharp4.runtime.win.4.5.3.20211228\build\net461\OpenCvSharp4.runtime.win.props')" />
+  <Import Project="..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{362FECF4-7F10-40D3-A157-3A83C1053B1F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Detour3D</RootNamespace>
+    <AssemblyName>Detour3D</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\build3D\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\build3D\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>detour3dico.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Costura, Version=3.3.3.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Costura.Fody.3.3.3\lib\net40\Costura.dll</HintPath>
+    </Reference>
+    <Reference Include="DeviceId, Version=5.3.0.0, Culture=neutral, PublicKeyToken=f755c371b5c59c52, processorArchitecture=MSIL">
+      <HintPath>..\packages\DeviceId.5.3.0\lib\net40\DeviceId.dll</HintPath>
+    </Reference>
+    <Reference Include="EmbedIO, Version=3.4.3.0, Culture=neutral, PublicKeyToken=5e5f048b6e04267e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\tools\EmbedIO.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>lib\ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGuizmo.NET">
+      <HintPath>lib\ImGuizmo.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImNodes.NET">
+      <HintPath>lib\ImNodes.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImPlot.NET">
+      <HintPath>lib\ImPlot.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net461\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MoreLinq, Version=3.2.0.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.3.2.0\lib\net451\MoreLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenCvSharp4.4.5.3.20211228\lib\net461\OpenCvSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp.WpfExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenCvSharp4.WpfExtensions.4.5.3.20211228\lib\net461\OpenCvSharp.WpfExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.3.1\lib\net20\OpenTK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.GLControl.3.1.0\lib\net20\OpenTK.GLControl.dll</HintPath>
+    </Reference>
+    <Reference Include="Swan.Lite, Version=3.0.0.0, Culture=neutral, PublicKeyToken=30c707c872729fff, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unosquare.Swan.Lite.3.0.0\lib\net461\Swan.Lite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.5.0.2\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Misc.cs" />
+    <Compile Include="ToolWindows\CameraCaliberation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolWindows\CameraCaliberation.designer.cs">
+      <DependentUpon>CameraCaliberation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindows\CartLayout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolWindows\CartLayout.Designer.cs">
+      <DependentUpon>CartLayout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindows\ImshowWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolWindows\ImshowWindow.designer.cs">
+      <DependentUpon>ImshowWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindows\MessageLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolWindows\MessageLog.Designer.cs">
+      <DependentUpon>MessageLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindows\Vis2D.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolWindows\Vis2D.designer.cs">
+      <DependentUpon>Vis2D.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DetourDraw.ManAnnot.cs" />
+    <Compile Include="UI\DetourDraw.OdometryEditor.cs" />
+    <Compile Include="UI\DetourDraw.Monitor.cs" />
+    <Compile Include="UI\DetourDraw.CartEditor.cs" />
+    <Compile Include="UI\DetourDraw.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Detour3DWnd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Detour3DWnd.designer.cs">
+      <DependentUpon>Detour3DWnd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Detour3DWnd.UI.cs" />
+    <Compile Include="UI\DetourDraw.SLAMEditor.cs" />
+    <Compile Include="UI\FolderPicker.cs" />
+    <Compile Include="UI\FontAwesome.cs" />
+    <Compile Include="UI\ImGuiI\ImGuiController.cs" />
+    <Compile Include="UI\ImGuiI\Shader.cs" />
+    <Compile Include="UI\ImGuiI\Texture.cs" />
+    <Compile Include="UI\ImGuiI\Util.cs" />
+    <Compile Include="UI\InputBox.cs" />
+    <Compile Include="UI\MessyEngine\MapHelper2D.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\NaiveWalkableObject.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\TextureWalkableObject.cs" />
+    <Compile Include="UI\MessyEngine\MEShaders\MapWalkableComputer.cs" />
+    <Compile Include="UI\MessyEngine\METextures\MEArrayTexture.cs" />
+    <Compile Include="UI\MessyEngine\METextures\MESingleTexture.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\RenderSearchObject.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\PointsObject.cs" />
+    <Compile Include="UI\MessyEngine\MEBuffers\MEAbstractBuffer.cs" />
+    <Compile Include="UI\MessyEngine\MEBuffers\MEAttribPointer.cs" />
+    <Compile Include="UI\MessyEngine\MEBuffers\MEElementBuffer.cs" />
+    <Compile Include="UI\MessyEngine\MEBuffers\MEVertexBuffer.cs" />
+    <Compile Include="UI\MessyEngine\MECameras\MEAbstractCamera.cs" />
+    <Compile Include="UI\MessyEngine\MEHelper.cs" />
+    <Compile Include="UI\MessyEngine\MEMaterials\MEAbstractMaterial.cs" />
+    <Compile Include="UI\MessyEngine\MEMeshes\MEMesh.cs" />
+    <Compile Include="UI\MessyEngine\MEMeshes\MEMeshConfig.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\IMEObjectInterface.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\MapWalkableObject.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\MEAbstractObject.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\MECircleObject.cs" />
+    <Compile Include="UI\MessyEngine\MEObjects\MEGridObject.cs" />
+    <Compile Include="UI\MessyEngine\MEShaders\MEShader.cs" />
+    <Compile Include="UI\MessyEngine\MEShaders\MEShaderType.cs" />
+    <Compile Include="UI\MessyEngine\MECameras\MEAerialCamera.cs" />
+    <Compile Include="UI\SceneInteractives.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Builder.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Configuration\QFontBuilderConfiguration.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Configuration\QFontConfiguration.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Configuration\QFontKerningConfiguration.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Configuration\QFontShadowConfiguration.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\GDIFont.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\Helper.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\IFont.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\KerningCalculator.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QBitmap.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFont.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFontData.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFontDrawing.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFontDrawingPrimitive.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFontGlyph.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QFontRenderOptions.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\QVertexArrayObject.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\TextNodeList.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\TexturePage.cs" />
+    <Compile Include="UI\MessyEngine\Quickfont\ViewportHelper.cs" />
+    <Compile Include="UI\Utilities.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="res\defaultconf.json" />
+    <EmbeddedResource Include="ToolWindows\CameraCaliberation.resx">
+      <DependentUpon>CameraCaliberation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\CartLayout.resx">
+      <DependentUpon>CartLayout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\CartLayout.zh-Hant.resx">
+      <DependentUpon>CartLayout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\CartLayout.zh.resx">
+      <DependentUpon>CartLayout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\ImshowWindow.resx">
+      <DependentUpon>ImshowWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\MessageLog.resx">
+      <DependentUpon>MessageLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolWindows\Vis2D.resx">
+      <DependentUpon>Vis2D.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Detour3DWnd.resx">
+      <DependentUpon>Detour3DWnd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MERes\consola.ttf" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-mesh.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-mesh.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-point.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-point.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-grid.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-grid.geom" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-grid.vert" />
+    <EmbeddedResource Include="res\fonts\DroidSans.ttf" />
+    <EmbeddedResource Include="res\fonts\fa-brands-400.ttf" />
+    <EmbeddedResource Include="res\fonts\fa-regular-400.ttf" />
+    <EmbeddedResource Include="res\fonts\fa-solid-900.ttf" />
+    <EmbeddedResource Include="UI\MERes\GLSL\compute-walkable.glsl" />
+    <EmbeddedResource Include="UI\MERes\GLSL\obsoletespecific-walkable.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\obsoletespecific-walkable.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-texture.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\generic-texture.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-search.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-search.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-search.geom" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-walkable.frag" />
+    <EmbeddedResource Include="UI\MERes\GLSL\specific-walkable.vert" />
+    <EmbeddedResource Include="UI\MERes\GLSL\obsoletecompute-walkable.glsl" />
+    <EmbeddedResource Include="UI\MERes\QFontShaders\simple.fs" />
+    <EmbeddedResource Include="UI\MERes\QFontShaders\simple.vs" />
+    <EmbeddedResource Include="UI\MERes\QFontShaders\simple_es.fs" />
+    <EmbeddedResource Include="UI\MERes\QFontShaders\simple_es.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DetourCore\DetourCore.csproj">
+      <Project>{f542bf90-afc2-4f71-848a-21f0e55ff7b5}</Project>
+      <Name>DetourCore</Name>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\ThreeCs\ThreeCs.csproj">
+      <Project>{62fab8f3-cce0-43cf-9a11-1d54d0c7e9e9}</Project>
+      <Name>ThreeCs</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UI\MERes\ImportModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="detour3dico.ico" />
+    <EmbeddedResource Include="res\assets\cimgui.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Fody.4.2.1\build\Fody.targets" Condition="Exists('..\packages\Fody.4.2.1\build\Fody.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\OpenCvSharp4.runtime.win.4.5.3.20211228\build\net461\OpenCvSharp4.runtime.win.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCvSharp4.runtime.win.4.5.3.20211228\build\net461\OpenCvSharp4.runtime.win.props'))" />
+  </Target>
+</Project>

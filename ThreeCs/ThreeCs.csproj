@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{62FAB8F3-CCE0-43CF-9A11-1D54D0C7E9E9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ThreeCs</RootNamespace>
+    <AssemblyName>ThreeCs</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.3.1\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cameras\Camera.cs" />
+    <Compile Include="Cameras\CameraControl.cs" />
+    <Compile Include="Cameras\AerialCameraControl.cs" />
+    <Compile Include="Cameras\FreeCameraControl.cs" />
+    <Compile Include="Cameras\OrthographicCamera.cs" />
+    <Compile Include="Cameras\PerspectiveCamera.cs" />
+    <Compile Include="Core\BaseGeometry.cs" />
+    <Compile Include="Core\BufferAttribute.cs" />
+    <Compile Include="Core\BufferGeometry.cs" />
+    <Compile Include="Core\EventDispatcher.cs" />
+    <Compile Include="Core\Face3.cs" />
+    <Compile Include="Core\Geometry.cs" />
+    <Compile Include="Core\GeometryGroup.cs" />
+    <Compile Include="Extras\Geometries\OctahedronGeometry.cs" />
+    <Compile Include="Extras\PlaneBufferGeometry.cs" />
+    <Compile Include="Lib\shaders\BlurShader.cs" />
+    <Compile Include="Loaders\Cache.cs" />
+    <Compile Include="Loaders\ImageLoader.cs" />
+    <Compile Include="Loaders\Loader.cs" />
+    <Compile Include="Loaders\LoadingManager.cs" />
+    <Compile Include="Materials\IMorphTargets.cs" />
+    <Compile Include="Modules\Pass.cs" />
+    <Compile Include="Objects\Group.cs" />
+    <Compile Include="Core\IBufferAttribute.cs" />
+    <Compile Include="Core\Object3D.cs" />
+    <Compile Include="Core\Projector.cs" />
+    <Compile Include="Core\Raycaster.cs" />
+    <Compile Include="Core\WebGlObject.cs" />
+    <Compile Include="Extras\Geometries\CircleGeometry.cs" />
+    <Compile Include="Extras\Geometries\IcosahedronGeometry.cs" />
+    <Compile Include="Extras\Geometries\PolyhedronGeometry.cs" />
+    <Compile Include="Extras\Geometries\RingGeometry.cs" />
+    <Compile Include="Extras\Geometries\TorusGeometry.cs" />
+    <Compile Include="Extras\Helpers\ArrowHelper.cs" />
+    <Compile Include="Extras\Objects\Sprite.cs" />
+    <Compile Include="Lights\LightShadow.cs" />
+    <Compile Include="Loaders\JSONLoader.cs" />
+    <Compile Include="Loaders\XHRLoader.cs" />
+    <Compile Include="Materials\IAttributes.cs" />
+    <Compile Include="Materials\IMap.cs" />
+    <Compile Include="Materials\IWireframe.cs" />
+    <Compile Include="Materials\SpriteMaterial.cs" />
+    <Compile Include="Materials\UniformLocation.cs" />
+    <Compile Include="Math\ColorNormalized.cs" />
+    <Compile Include="Math\HSLColor.cs" />
+    <Compile Include="Math\Line3.cs" />
+    <Compile Include="Math\Ray.cs" />
+    <Compile Include="Objects\LOD.cs" />
+    <Compile Include="Lib\postprocessing\ClearMaskPass.cs" />
+    <Compile Include="Lib\postprocessing\DepthPass.cs" />
+    <Compile Include="Lib\postprocessing\EffectComposer.cs" />
+    <Compile Include="Lib\postprocessing\IPass.cs" />
+    <Compile Include="Lib\postprocessing\MaskPass.cs" />
+    <Compile Include="Lib\postprocessing\OutlinePass.cs" />
+    <Compile Include="Lib\postprocessing\RenderPass.cs" />
+    <Compile Include="Lib\postprocessing\ShaderPass.cs" />
+    <Compile Include="PreventCircularUpdate.cs" />
+    <Compile Include="Extras\FontUtils.cs" />
+    <Compile Include="Extras\Geometries\BoxGeometry.cs" />
+    <Compile Include="Extras\Geometries\CylinderGeometry.cs" />
+    <Compile Include="Extras\Geometries\ExtrudeGeometry.cs" />
+    <Compile Include="Extras\Geometries\PlaneGeometry.cs" />
+    <Compile Include="Extras\Geometries\SphereGeometry.cs" />
+    <Compile Include="Extras\Geometries\TextGeometry.cs" />
+    <Compile Include="Extras\Helpers\GridHelper.cs" />
+    <Compile Include="Extras\Helpers\ListHelper.cs" />
+    <Compile Include="Extras\ImageUtils.cs" />
+    <Compile Include="Extras\Objects\ImmediateRenderObject.cs" />
+    <Compile Include="Extras\Objects\LensFlare.cs" />
+    <Compile Include="Extras\Objects\MorphBlendMesh.cs" />
+    <Compile Include="Extras\Renderers\IPlugin.cs" />
+    <Compile Include="Lights\AmbientLight.cs" />
+    <Compile Include="Lights\AreaLight.cs" />
+    <Compile Include="Lights\DirectionalLight.cs" />
+    <Compile Include="Lights\HemisphereLight.cs" />
+    <Compile Include="Lights\Light.cs" />
+    <Compile Include="Lights\LightCollection.cs" />
+    <Compile Include="Lights\PointLight.cs" />
+    <Compile Include="Lights\SpotLight.cs" />
+    <Compile Include="Materials\LineBasicMaterial.cs" />
+    <Compile Include="Materials\LineDashedMaterial.cs" />
+    <Compile Include="Materials\Material.cs" />
+    <Compile Include="Materials\MeshBasicMaterial.cs" />
+    <Compile Include="Materials\MeshDepthMaterial.cs" />
+    <Compile Include="Materials\MeshFaceMaterial.cs" />
+    <Compile Include="Materials\MeshLambertMaterial.cs" />
+    <Compile Include="Materials\MeshNormalMaterial.cs" />
+    <Compile Include="Materials\MeshPhongMaterial.cs" />
+    <Compile Include="Materials\PointCloudMaterial.cs" />
+    <Compile Include="Materials\RawShaderMaterial.cs" />
+    <Compile Include="Materials\ShaderMaterial.cs" />
+    <Compile Include="Math\Box3.cs" />
+    <Compile Include="Math\ExtensionMethods.cs" />
+    <Compile Include="Math\Frustum.cs" />
+    <Compile Include="Math\Matrix3.cs" />
+    <Compile Include="Math\Matrix4.cs" />
+    <Compile Include="Math\Plane.cs" />
+    <Compile Include="Math\Quaternion.cs" />
+    <Compile Include="Math\Sphere.cs" />
+    <Compile Include="Math\Vector2.cs" />
+    <Compile Include="Math\Vector4.cs" />
+    <Compile Include="Math\Vector3.cs" />
+    <Compile Include="Objects\LineSegments.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Renderers\Renderables\RenderableFace.cs" />
+    <Compile Include="Renderers\Renderables\RenderableLine.cs" />
+    <Compile Include="Renderers\Renderables\RenderableObject.cs" />
+    <Compile Include="Renderers\Renderables\RenderableSprite.cs" />
+    <Compile Include="Renderers\Renderables\RenderableVertex.cs" />
+    <Compile Include="Renderers\Shaders\Attribute.cs" />
+    <Compile Include="Renderers\Shaders\Attributes.cs" />
+    <Compile Include="Renderers\Shaders\IUniforms.cs" />
+    <Compile Include="Renderers\Shaders\Shader.cs" />
+    <Compile Include="Renderers\Shaders\Uniform.cs" />
+    <Compile Include="Extras\Renderers\Plugins\LensFlarePlugin.cs" />
+    <Compile Include="Extras\Renderers\Plugins\ShadowMapPlugin.cs" />
+    <Compile Include="Extras\Renderers\Plugins\SpritePlugin.cs" />
+    <Compile Include="Lib\shaders\CopyShader.cs" />
+    <Compile Include="Lib\shaders\DepthSobelShader.cs" />
+    <Compile Include="Lib\shaders\DotScreenShader.cs" />
+    <Compile Include="Lib\shaders\RGBShiftShader.cs" />
+    <Compile Include="Textures\CubeTexture.cs" />
+    <Compile Include="Textures\ITexture.cs" />
+    <Compile Include="Three.cs" />
+    <Compile Include="Math\Euler.cs" />
+    <Compile Include="Objects\Bone.cs" />
+    <Compile Include="Objects\Line.cs" />
+    <Compile Include="Objects\Mesh.cs" />
+    <Compile Include="Objects\PointCloud.cs" />
+    <Compile Include="Objects\Skeleton.cs" />
+    <Compile Include="Objects\SkinnedMesh.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderers\WebGLRenderer.cs" />
+    <Compile Include="Renderers\WebGLRenderTargetCube.cs" />
+    <Compile Include="Renderers\WebGLRenderTarget.cs" />
+    <Compile Include="Renderers\Shaders\ShaderLib.cs" />
+    <Compile Include="Renderers\Shaders\Uniforms.cs" />
+    <Compile Include="Renderers\Shaders\UniformsLib.cs" />
+    <Compile Include="Renderers\Shaders\UniformsUtils.cs" />
+    <Compile Include="Renderers\WebGL\WebGLProgram.cs" />
+    <Compile Include="Renderers\WebGL\WebGLShader.cs" />
+    <Compile Include="Scenes\Fog.cs" />
+    <Compile Include="Scenes\FogExp2.cs" />
+    <Compile Include="Scenes\Scene.cs" />
+    <Compile Include="Textures\CompressedTexture.cs" />
+    <Compile Include="Textures\DataTexture.cs" />
+    <Compile Include="Textures\Texture.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\alphamap_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\alphamap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\alphatest_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\bumpmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\color_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\color_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\color_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\color_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\defaultnormal_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\default_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\envmap_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\envmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\envmap_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\envmap_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\fog_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\fog_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lightmap_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lightmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lightmap_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lightmap_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_lambert_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_lambert_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_phong_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_phong_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_phong_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\lights_phong_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\linear_to_gamma_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\logdepthbuf_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\logdepthbuf_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\logdepthbuf_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\logdepthbuf_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_particle_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_particle_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\map_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\morphnormal_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\morphtarget_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\morphtarget_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\normalmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\shadowmap_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\shadowmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\shadowmap_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\shadowmap_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\skinbase_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\skinning_pars_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\skinning_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\skinnormal_vertex.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\specularmap_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\specularmap_pars_fragment.glsl" />
+    <EmbeddedResource Include="Renderers\Shaders\ShaderChunk\worldpos_vertex.glsl" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

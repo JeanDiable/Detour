@@ -1,0 +1,68 @@
+﻿{
+  "IOService": "127.0.0.1",
+
+  "layout": {
+    "chassis": {
+      "width": 1200.0,
+      "length": 2000.0,
+      "contour": [ -445, 330, 445, 330, 445, -330, -445, -330 ]
+    },
+    "components": [
+      {
+        "type": "wheel",
+        "options": {
+          "platform": 0,
+          "scale": 1.0,
+          "radius": 200.0,
+          "id": 1,
+          "name": "w1",
+          "x": 0.0,
+          "y": 300.0,
+          "th": 0.0,
+          "tag": null
+        }
+      },
+      {
+        "type": "wheel",
+        "options": {
+          "platform": 6,
+          "scale": 1.0,
+          "radius": 200.0,
+          "id": 2,
+          "name": "w2",
+          "x": 0.0,
+          "y": -300.0,
+          "th": 0.0,
+          "tag": null
+        }
+      },
+      {
+        "type": "lidar2d",
+        "options": {
+          "radius": 200.0,
+          "isCircle": false,
+          "startAngle": 0.0,
+          "endAngle": 0.0,
+          "id": 1101520006,
+          "name": "frontlidar",
+          "x": 350.0,
+          "y": 0.0,
+          "th": 0.0,
+          "tag": null
+        }
+      }//,
+      //{
+      //  "type": "downcamera",
+      //  "options": {
+      //    "viewfield": 150.0,
+      //    "id": 1486668643,
+      //    "name": "maincam",
+      //    "x": -6.96916628,
+      //    "y": 6.969173,
+      //    "th": 0.0,
+      //    "tag": null
+      //  }
+      //}
+    ]
+  }
+}

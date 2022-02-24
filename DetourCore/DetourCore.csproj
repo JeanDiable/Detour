@@ -1,0 +1,106 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\packages\Microsoft.ML.1.5.1\build\netstandard2.0\Microsoft.ML.props" Condition="Exists('..\packages\Microsoft.ML.1.5.1\build\netstandard2.0\Microsoft.ML.props')" />
+  <Import Project="..\packages\Microsoft.ML.CpuMath.1.5.1\build\netstandard2.0\Microsoft.ML.CpuMath.props" Condition="Exists('..\packages\Microsoft.ML.CpuMath.1.5.1\build\netstandard2.0\Microsoft.ML.CpuMath.props')" />
+  <Import Project="..\packages\OpenCvSharp4.runtime.win.4.4.0.20200725\build\net\OpenCvSharp4.runtime.win.props" Condition="Exists('..\packages\OpenCvSharp4.runtime.win.4.4.0.20200725\build\net\OpenCvSharp4.runtime.win.props')" />
+  <Import Project="..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\build\Microsoft.CodeAnalysis.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\build\Microsoft.CodeAnalysis.Analyzers.props')" />
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutputPath>..\build\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>..\build\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Algorithms\OpenCL\stage2nn.cl" />
+    <EmbeddedResource Include="res\defaultconf.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cloo.clSharp" Version="1.0.1" />
+    <PackageReference Include="DeviceId" Version="5.3.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.8.1" />
+    <PackageReference Include="morelinq" Version="3.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="OpenCvSharp4" Version="4.5.3.20211228" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Algorithms\Lidar3DOdometry - 副本 %282%29.cs" />
+    <Compile Remove="Algorithms\Lidar3DOdometry - 副本 %283%29.cs" />
+    <Compile Remove="Algorithms\Lidar3DOdometry - 副本 %284%29.cs" />
+    <Compile Remove="Algorithms\Lidar3DOdometry - 副本.cs" />
+    <Compile Remove="Algorithms\Lidar3DOdometry.FrameRefIdx - 副本.cs" />
+    <Compile Remove="Algorithms\LidarFeaturePoints.cs" />
+    <Compile Remove="Algorithms\LidarOdometry - 副本 %282%29.cs" />
+    <Compile Remove="Algorithms\LidarOdometry - 副本.cs" />
+    <Compile Remove="Algorithms\TightCoupler - 副本 (2).cs" />
+    <Compile Remove="Algorithms\TightCoupler - 副本 (3).cs" />
+    <Compile Remove="Algorithms\TightCoupler - 副本 (4).cs" />
+    <Compile Remove="Algorithms\TightCoupler - 副本.cs" />
+    <Compile Remove="CartDefinition\CeilingCamera.cs" />
+    <Compile Remove="CartDefinition\Lidar-ok.cs" />
+    <Compile Remove="Misc\SharedObjectOb.cs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <Import Project="..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\build\Microsoft.CodeAnalysis.Analyzers.targets" Condition="Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\build\Microsoft.CodeAnalysis.Analyzers.targets')" />
+  <Import Project="..\packages\Microsoft.ML.1.5.1\build\netstandard2.0\Microsoft.ML.targets" Condition="Exists('..\packages\Microsoft.ML.1.5.1\build\netstandard2.0\Microsoft.ML.targets')" />
+  <Import Project="..\packages\Accord.3.8.0\build\Accord.targets" Condition="Exists('..\packages\Accord.3.8.0\build\Accord.targets')" />
+  <ItemGroup>
+    <Content Remove="D:\src\Detour\packages\Accord.3.8.0\build\Accord.dll.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Algorithms\CeilingOdometry.CeilingSI - 副本.cs2" />
+    <None Remove="Algorithms\Lidar3DOdometry.FrameRefIdx - 副本 %282%29.cs.2" />
+    <None Remove="Algorithms\Lidar3DOdometry.FrameRefIdx - 副本 %282%29.cs2" />
+    <None Remove="Algorithms\Lidar3DOdometry.FrameRefIdx - 副本 %282%29.csbak" />
+    <None Remove="C:\Users\X170\.nuget\packages\mathnet.numerics.mkl.win-x64\2.3.0\build\x64\MathNet.Numerics.MKL.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="C:\Users\X170\.nuget\packages\mathnet.numerics.mkl.win-x64\2.3.0\build\x64\libiomp5md.dll" />
+    <None Remove="CartDefinition\CeilingCamera - 副本.scs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="EmbedIO">
+      <HintPath>..\tools\EmbedIO.dll</HintPath>
+    </Reference>
+    <Reference Include="Swan.Lite">
+      <HintPath>..\tools\Swan.Lite.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(SolutionDir)tools\AutoVersioning.exe $(ProjectDir)Properties\AssemblyInfo.cs" />
+  </Target>
+</Project>

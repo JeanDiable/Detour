@@ -684,7 +684,6 @@ namespace Detour3D.UI
         {
             if (!useDistortionRectification) return;
             var cloud = ManCloudsObjects.CloudDictionary[_radioSelcName];
-
             var interpolated = cloud.Point3Ds;
             if (ManCloudsObjects.CloudDictionary.Count > 1)
             {

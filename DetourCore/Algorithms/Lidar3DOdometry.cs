@@ -228,11 +228,15 @@ namespace DetourCore.Algorithms
                         {
                             var v3 = g.qt.Transform(g.scan.corrected[i]);
                             var inten = g.scan.rawAZD[i].intensity;
-                            var height = v3.Z < minZ ? 0 : (int)((v3.Z - minZ) / dZ * 255);
+                            var height = v3.Z < minZ ? 0 : (int) ((v3.Z - minZ) / dZ * 255);
                             if (v3.Z > maxZ) height = 255;
+                            //painter.drawDotG3(
+                            //    Color.FromArgb(255, (int)inten, (int)(height * (1f - inten / 255f)),
+                            //        (int)((255 - height) * (1f - inten / 255f))), 1, v3);
                             painter.drawDotG3(
-                                Color.FromArgb(255, (int)inten, (int)(height * (1f - inten / 255f)),
-                                    (int)((255 - height) * (1f - inten / 255f))), 1, v3);
+                                Color.FromArgb(255, (int) (height * (1f - inten / 255f)),
+                                    (int) ((255 - height) * (1f - inten / 255f)),
+                                    (int) inten),1,v3);
                         }
                     }
 

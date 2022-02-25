@@ -15,7 +15,7 @@ using System.Resources;
 [assembly: AssemblyCulture("")]
 
 // Version information
-[assembly: AssemblyVersion("1.5.0.1342")]
+[assembly: AssemblyVersion("1.5.0.1358")]
 [assembly: NeutralResourcesLanguageAttribute( "en-US" )]
 
 // 1.3.0.0: Todo: use 3D lidar navigation.

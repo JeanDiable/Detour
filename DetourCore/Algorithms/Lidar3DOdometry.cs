@@ -436,7 +436,7 @@ namespace DetourCore.Algorithms
                 // }
                 foreach (var v3 in comparedScan.corrected)
                 {
-                    painter.drawDotG3(Color.Red, 1, qt.Transform(v3));//Vector3.Transform(v3, lastLocation)));
+                    painter.drawDotG3(Color.LawnGreen, 1, qt.Transform(v3));//Vector3.Transform(v3, lastLocation)));
                 }
                 // todo: deltaFiltering
                 // if (rr.score >= ScoreThres)

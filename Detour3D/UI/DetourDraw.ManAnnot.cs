@@ -1141,7 +1141,9 @@ namespace Detour3D.UI
                             ? deltaMatrix * new Matrix4(pair.Value.ModelMatrix)
                             : new Matrix4(pair.Value.ModelMatrix));
                     shader.SetFloat("pointSize", pair.Value.Hovered ? 3f : 1f);
+                    //Vector4 colorshader = new Vector4(0, 1, 0, 1);
                     shader.SetVector4("assignColor", Vector4.Zero);
+                    //shader.SetVector4("assignColor", colorshader);
                     shader.SetFloat("useIntensityColor", 1f);
 
                     pair.Value.Mesh.Draw();

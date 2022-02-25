@@ -252,9 +252,15 @@ namespace Fake.UI
                         var inten = intensities[i];
                         var height = p.Z < minZ ? 0 : (int)((p.Z - minZ) / dZ * 255);
                         if (p.Z > minZ)
+                            //painter.drawDotG3(
+                            //    Color.FromArgb(255, (int)inten, (int)(height * (1f - inten / 255f)),
+                            //        (int)((255 - height) * (1f - inten / 255f))), 1, p * 1000);  蓝色
+                            //painter.drawDotG3(
+                            //    Color.FromArgb(255, (int)((255 - height) * (1f - inten / 255f)), (int)(height * (1f - inten / 255f)),
+                            //        (int)inten), 1, p * 1000); //红色
                             painter.drawDotG3(
-                                Color.FromArgb(255, (int)inten, (int)(height * (1f - inten / 255f)),
-                                    (int)((255 - height) * (1f - inten / 255f))), 1, p * 1000);
+                                Color.FromArgb(255, (int)(height * (1f - inten / 255f)), (int)((255 - height) * (1f - inten / 255f)),
+                                    (int)inten), 1, p * 1000);
                     }
                 }
             }).Start();

@@ -87,12 +87,20 @@ namespace Detour3D.UI
         public static ImGuizmoNET.MODE CurrentGizmoMode = MODE.LOCAL;
         public static PerspectiveCamera Camera;
         public static Size ClientSize;
+        private static float[] _modelMatrix = new float[]
+        {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        };
         private static float[] lastModelMatrix = new Matrix4().Identity().Elements;
         private static float[] _vecTrans = new float[3];
         private static float[] _vecRot = new float[3];
         private static float[] _vecScl = new float[3];
         private static bool adjustMultiple = true;
         private static Matrix4 adjMultiRevMat = new Matrix4();
+        private static List<string> adjKeys = new List<string>();
 
         // UI
         private static bool setScroll2Bottom = false;
@@ -330,7 +338,6 @@ namespace Detour3D.UI
                     else
                     {
                         ManCloudsObjects.CloudDictionary.Remove(frameToRemove);
-                        couldRemove = false;
                     }
                 }
                 
@@ -422,7 +429,7 @@ namespace Detour3D.UI
             if (ImGui.RadioButton("旋转 (R)", ref ZmoMode, 1))
                 CurrentGizmoOp = OPERATION.ROTATE;
 
-            ImGuizmo.DecomposeMatrixToComponents(ref modelMatrix[0], ref _vecTrans[0], ref _vecRot[0], ref _vecScl[0]);
+            ImGuizmo.DecomposeMatrixToComponents(ref _modelMatrix[0], ref _vecTrans[0], ref _vecRot[0], ref _vecScl[0]);
 
             void Respond2Keys()
             {
@@ -479,7 +486,7 @@ namespace Detour3D.UI
             if (ImGui.DragFloat3("旋转", ref vecR, dragSpeed)) manualChanged = true;
             _vecTrans = new float[] { vecT.X, vecT.Y, vecT.Z };
             _vecRot = new float[] { vecR.X, vecR.Y, vecR.Z };
-            ImGuizmo.RecomposeMatrixFromComponents(ref _vecTrans[0], ref _vecRot[0], ref _vecScl[0], ref modelMatrix[0]);
+            ImGuizmo.RecomposeMatrixFromComponents(ref _vecTrans[0], ref _vecRot[0], ref _vecScl[0], ref _modelMatrix[0]);
 
             if (CurrentGizmoOp != OPERATION.SCALE)
             {
@@ -514,9 +521,9 @@ namespace Detour3D.UI
                         ClientSize.Width / (float)ClientSize.Height, 0.1f, 4096f)).Elements;
 
                 if (ImGuizmo.Manipulate(ref cameraView[0], ref cameraProjection[0], CurrentGizmoOp, CurrentGizmoMode,
-                    ref modelMatrix[0])) manualChanged = true; 
+                    ref _modelMatrix[0])) manualChanged = true; 
 
-                ImGuizmo.DecomposeMatrixToComponents(ref modelMatrix[0], ref _vecTrans[0], ref _vecRot[0],
+                ImGuizmo.DecomposeMatrixToComponents(ref _modelMatrix[0], ref _vecTrans[0], ref _vecRot[0],
                     ref _vecScl[0]);
 
                 ImGui.End();

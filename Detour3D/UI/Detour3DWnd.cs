@@ -260,7 +260,7 @@ namespace Fake.UI
                             //        (int)inten), 1, p * 1000); //红色
                             painter.drawDotG3(
                                 Color.FromArgb(255, (int)(height * (1f - inten / 255f)), (int)((255 - height) * (1f - inten / 255f)),
-                                    (int)inten), 1, p * 1000);
+                                    (int)inten), 1, p * 1000); //绿色
                     }
                 }
             }).Start();

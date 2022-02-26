@@ -42,7 +42,6 @@ namespace Detour3D.UI
             public float azimuth;
             public float altitude;
             public float intensity; //0~255
-            public float progression;
 
             public override string ToString()
             {
@@ -68,17 +67,11 @@ namespace Detour3D.UI
         private static float startAngle = 0;
 
         // file
-        private static bool isRemoveAllBehind = false;
-        private static bool couldRemove = false;
-        private static int frameToRemoveId;
-        private static string frameToRemove;
         private static bool is2D = false;
         private static string[] _flList;
         private static string selectedFolder;
         private static int frameCnt = 0;
         private static bool inTimeEDL = false;
-
-
 
         // point cloud and poses
         public static CloudsObject ManCloudsObjects;
@@ -97,7 +90,6 @@ namespace Detour3D.UI
         // UI
         private static bool setScroll2Bottom = false;
         private static string _radioSelcName = "";
-        private static string _radioPrevName = "";
         private static string _radioLastName = ""; // last frame
         private static int _radioSelc = -1;
         public static bool[] ManualKeys = new bool[6];
@@ -126,7 +118,6 @@ namespace Detour3D.UI
             if (useDistortionRectification)
             {
                 ImGui.InputFloat("起始角度", ref startAngle);
-
                 ImGui.RadioButton("顺时针", ref clockWise, 0);
                 ImGui.SameLine();
                 ImGui.RadioButton("逆时针", ref clockWise, 1);
@@ -213,6 +204,7 @@ namespace Detour3D.UI
                 openFolderTask.SetApartmentState(ApartmentState.STA);
                 openFolderTask.Start();
             }
+
             var added = false;
             if (ImGui.Button(label: "下一帧 (N)"))
             {
@@ -223,30 +215,26 @@ namespace Detour3D.UI
                     int count = 0;
                     foreach (var kvp in ManCloudsObjects.CloudDictionary)
                     {
-                        if (count < frameCnt-10 || count == frameCnt - 1)
+                        if (count < frameCnt-10)
                         {
                             kvp.Value.IsDisplay = true;
                             count++;
                             continue;
                         }
                         kvp.Value.IsDisplay = false;
-                        count++;
                     }
 
                     lock (ManualEyeDomeLock)
                         Monitor.PulseAll(ManualEyeDomeLock);
                 }
             }
-            ImGui.SameLine();
-            ImGui.Checkbox("删除当前帧和之后所有帧", ref isRemoveAllBehind);
 
             void DrawFilesList()
             {
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags.HorizontalScrollbar;
                 ImGui.BeginChild("ChildWindow", new System.Numerics.Vector2(ImGui.GetWindowContentRegionWidth(), 200), false,
                     window_flags);
-
-                var lastName = "";
+                
                 foreach (var pair in ManCloudsObjects.CloudDictionary)
                 {
                     pair.Value.Hovered = false;
@@ -266,84 +254,10 @@ namespace Detour3D.UI
 
                     ImGui.SameLine(0, -1);
                     ImGui.RadioButton(pair.Key, ref _radioSelc, pair.Value.id);
-                    ImGui.SameLine(0, -1);
-                    ImGui.PushID($"button_{pair.Key}");
-                    if (ImGui.Button("删除帧"))
-                    {
-                        Console.WriteLine("尝试删除");
-                        if (isRemoveAllBehind)
-                        {
-                            frameToRemoveId = pair.Value.id;
-                        }
-                        else
-                        {
-                            frameToRemoveId = ManCloudsObjects.CloudDictionary.Count+1;
-                        }
-                        frameToRemove = pair.Key;
-                        couldRemove = true;
-                    }
-                    ImGui.PopID();
 
                     if (ImGui.IsItemHovered()) pair.Value.Hovered = true;
-                    if (_radioSelc == pair.Value.id)
-                    {
-                        _radioSelcName = pair.Key;
-                        _radioPrevName = lastName;
-                    }
-
-                    lastName = pair.Key;
+                    if (_radioSelc == pair.Value.id) _radioSelcName = pair.Key;
                 }
-
-
-                if (couldRemove)
-                {
-                    if (isRemoveAllBehind)
-                    {
-                        Console.WriteLine("couldRemove");
-                        Console.WriteLine($"frameToRemoveId{frameToRemoveId}");
-                        IDictionaryEnumerator demoEnum = ManCloudsObjects.CloudDictionary.GetEnumerator();
-                        List<string> pointsCloudsToRemoveList = new List<string>();
-
-                        while (demoEnum.MoveNext())
-                        {
-                            Console.WriteLine("move next");
-                            CloudControl CC;
-                            CC = (CloudControl)demoEnum.Value;
-                            if (CC.id >= frameToRemoveId)
-                            {
-                                Console.WriteLine($"CC.id{CC.id},frameToRemoveId{frameToRemoveId}");
-                                pointsCloudsToRemoveList.Add((string)demoEnum.Key);
-                            }
-                        }
-
-                        foreach (string pointscloud in pointsCloudsToRemoveList)
-                        {
-                            if (ManCloudsObjects.CloudDictionary.ContainsKey(pointscloud))
-                            {
-                                ManCloudsObjects.CloudDictionary.Remove(pointscloud);
-                                Console.WriteLine($"删除帧{pointscloud}");
-                            }
-                        }
-
-                        couldRemove = false;
-                    }
-                    else
-                    {
-                        ManCloudsObjects.CloudDictionary.Remove(frameToRemove);
-                        couldRemove = false;
-                    }
-                }
-                
-
-                // int cloudDicLength = ManCloudsObjects.CloudDictionary.Count;
-                // bool shouldRemove = false;
-                // for (int i = 0; i < cloudDicLength; i++)
-                // {
-                //     if (ManCloudsObjects.CloudDictionary.Keys)
-                //     {
-                //         
-                //     }
-                // }
 
                 if (setScroll2Bottom)
                 {
@@ -362,9 +276,6 @@ namespace Detour3D.UI
             if (_radioSelcName != _radioLastName && ManCloudsObjects.CloudDictionary.ContainsKey(_radioLastName))
             {
                 Console.WriteLine($"选中帧：{_radioSelcName}, last: {_radioLastName} {added}");
-                CloudControl selectedCloudControl;
-                ManCloudsObjects.CloudDictionary.TryGetValue(_radioSelcName, out selectedCloudControl);
-                selectedCloudControl.Selected = true;
                 var keys = ManCloudsObjects.CloudDictionary.Keys.ToArray();
                 bool commitFlag = false, startFlag = false;
                 for (var i = 0; i < keys.Length; ++i)
@@ -389,38 +300,14 @@ namespace Detour3D.UI
                     Console.WriteLine(string.Join(" ", ManCloudsObjects.CloudDictionary[keys[i]].ModelMatrix));
                 }
             }
-
-            //_modelMatrix = ManCloudsObjects.CloudDictionary.ContainsKey(_radioSelcName)
-            //    ? ManCloudsObjects.CloudDictionary[_radioSelcName].ModelMatrix
-            //    : _modelMatrix = new float[16];
-            //if (_radioSelcName != _radioLastName && ManCloudsObjects.CloudDictionary.ContainsKey(_radioLastName))
-            //{
-            //    Console.WriteLine($"选中帧：{_radioSelcName}");
-            //    adjMultiRevMat = new Matrix4(_modelMatrix).GetInverse();
-            //    CloudControl selectedCloudControl;
-            //    ManCloudsObjects.CloudDictionary.TryGetValue(_radioSelcName, out selectedCloudControl);
-            //    selectedCloudControl.Selected = true;
-            //}
-
-            IDictionaryEnumerator selectEnumerator = ManCloudsObjects.CloudDictionary.GetEnumerator();
-            while (selectEnumerator.MoveNext())
-            {
-                CloudControl selectCloudControl = (CloudControl)selectEnumerator.Value;
-                if ((string)selectEnumerator.Key != _radioSelcName)
-                {
-                    selectCloudControl.Selected = false;
-                }
-            }
-
             _radioLastName = _radioSelcName;
             if (added) lastModelMatrix = ManCloudsObjects.CloudDictionary.Last().Value.ModelMatrix;
+
             ImGui.Checkbox("调整选定帧及其后整个序列", ref adjustMultiple);
 
-            if (ImGui.RadioButton("平移 (T)", ref ZmoMode, 0))
-                CurrentGizmoOp = OPERATION.TRANSLATE;
+            if (ImGui.RadioButton("平移 (T)", ref ZmoMode, 0)) CurrentGizmoOp = OPERATION.TRANSLATE;
             ImGui.SameLine(0, -1);
-            if (ImGui.RadioButton("旋转 (R)", ref ZmoMode, 1))
-                CurrentGizmoOp = OPERATION.ROTATE;
+            if (ImGui.RadioButton("旋转 (R)", ref ZmoMode, 1)) CurrentGizmoOp = OPERATION.ROTATE;
 
             ImGuizmo.DecomposeMatrixToComponents(ref modelMatrix[0], ref _vecTrans[0], ref _vecRot[0], ref _vecScl[0]);
 
@@ -483,11 +370,9 @@ namespace Detour3D.UI
 
             if (CurrentGizmoOp != OPERATION.SCALE)
             {
-                if (ImGui.RadioButton("局部 (L)", CurrentGizmoMode == MODE.LOCAL))
-                    CurrentGizmoMode = MODE.LOCAL;
+                if (ImGui.RadioButton("局部 (L)", CurrentGizmoMode == MODE.LOCAL)) CurrentGizmoMode = MODE.LOCAL;
                 ImGui.SameLine();
-                if (ImGui.RadioButton("全局 (W)", CurrentGizmoMode == MODE.WORLD))
-                    CurrentGizmoMode = MODE.WORLD;
+                if (ImGui.RadioButton("全局 (W)", CurrentGizmoMode == MODE.WORLD)) CurrentGizmoMode = MODE.WORLD;
             }
 
             void ImGuizmoManipulate()
@@ -524,38 +409,8 @@ namespace Detour3D.UI
             }
 
             ImGuizmoManipulate();
-
-            //if (manualChanged)
-            //{
-            //    Console.WriteLine($"manual changed {DateTime.Now}");
-            //    DeformationCompensation();
-            //    if (ManCloudsObjects.CloudDictionary.ContainsKey(_radioSelcName))
-            //    {
-            //        var pcc = ManCloudsObjects.CloudDictionary[_radioSelcName];
-            //        pcc.ModelMatrix = _modelMatrix;
-
-            //        if (adjustMultiple)
-            //        {
-            //            adjKeys.Clear();
-            //            var keys = ManCloudsObjects.CloudDictionary.Keys.ToArray();
-            //            var flag = false;
-            //            for (var i = 0; i < keys.Length; ++i)
-            //            {
-            //                if (flag)
-            //                {
-            //                    Console.WriteLine($"{i}: {keys[i]}");
-            //                    adjKeys.Add(keys[i]);
-            //                    ManCloudsObjects.CloudDictionary[keys[i]].IsAdjMulti = true;
-            //                }
-            //                if (keys[i] == _radioSelcName) flag = true;
-            //            }
-            //        }
-
-            //        ManCloudsObjects.deltaMatrix = new Matrix4(_modelMatrix) * adjMultiRevMat;
-            //        lastModelMatrix = _modelMatrix;
-            //    }
-            //}
-
+            
+ 
             if (manualChanged)
             {
                 var keys = ManCloudsObjects.CloudDictionary.Keys.ToArray();
@@ -571,6 +426,7 @@ namespace Detour3D.UI
                     ManCloudsObjects.deltaMatrix = new Matrix4(modelMatrix) * adjMultiRevMat;
                 }
             }
+            
 
             ImGui.Separator();
 
@@ -685,14 +541,6 @@ namespace Detour3D.UI
 
                         omList[15] = 1;
 
-                        // for (var i = 0; i < 16; ++i)
-                        // {
-                        //     if (i > 0 && i % 4 == 0) Console.WriteLine();
-                        //     Console.Write($"{omList[i]:00.00} ");
-                        // }
-                        // Console.WriteLine();
-                        // Console.WriteLine("==========");
-                        
                         framesQueue.Enqueue(new CloudLoader()
                         {
                             points = ReadPointsData(lidarPath),
@@ -701,7 +549,6 @@ namespace Detour3D.UI
                             om = omList
                         });
                         frameCnt++;
-                        // Console.WriteLine($"{fileLines.Length}:{k}");
 
                         if (k == 200) break;
                     }
@@ -750,8 +597,6 @@ namespace Detour3D.UI
                         kittiOm[7] = omList[14];
 
                         result.Add(string.Join(" ", kittiOm));
-
-                        // Console.WriteLine($"{fileLines.Length}:{k}");
                     }
 
                     File.WriteAllLines("annot-kitti.txt", result);
@@ -763,7 +608,7 @@ namespace Detour3D.UI
             var startDisplayTime = DateTime.Now;
             while (framesQueue.TryDequeue(out var l))
             {
-                VisualizePoints(l.points, l.lidarPath, l.frameCnt, l.om);
+                VisualizePoints(l.points, l.lidarPath, l.frameCnt, (float[])l.om.Clone());
                 if ((DateTime.Now - startDisplayTime).TotalMilliseconds > 100) break;
             }
         }
@@ -793,7 +638,9 @@ namespace Detour3D.UI
             var interpolated = cloud.Point3Ds;
             if (ManCloudsObjects.CloudDictionary.Count > 1)
             {
-                var prevMM = new Matrix4(ManCloudsObjects.CloudDictionary[_radioPrevName].ModelMatrix);
+                var keys = ManCloudsObjects.CloudDictionary.Keys.ToList();
+                var idx = keys.IndexOf(_radioSelcName) - 1;
+                var prevMM = new Matrix4(ManCloudsObjects.CloudDictionary[keys[idx]].ModelMatrix);
                 var curMM = new Matrix4(cloud.ModelMatrix);
                 var deltaMat = prevMM.GetInverse() * curMM;
                 var deltaEuler = EulerTransform.FromMatrix4(deltaMat);
@@ -815,23 +662,11 @@ namespace Detour3D.UI
             for (var i = 0; i < interpolated.Count; ++i)
             {
                 var p = interpolated[i];
-                if (is2D)
+                tmp.Add(new Vertex()
                 {
-                    tmp.Add(new Vertex()
-                    {
-                        position = new Vector3(p.X, p.Y, p.Z),
-                        color = 128,
-                    });
-                }
-                else
-                {
-                    tmp.Add(new Vertex()
-                    {
-                        position = new Vector3(p.X, p.Y, p.Z),
-                        color = cloud.Point3Ds[i].Color,
-                    });
-                }
-                
+                    position = new Vector3(p.X, p.Y, p.Z),
+                    color = cloud.Point3Ds[i].Color,
+                });
             }
             mesh.UpdateData(tmp, null);
             cloud.Mesh = mesh;
@@ -867,36 +702,6 @@ namespace Detour3D.UI
             }
             
             return res;
-            // var res = new List<Point3D>();
-            //
-            // for (var i = 0; i < inPoints.Count; ++i)
-            // {
-            //     var th = Math.Atan2(inPoints[i].Y, inPoints[i].X) / Math.PI * 180;
-            //     if (th < 0) th += 360;
-            //     var thDiff = 1 * (0 - th);
-            //     var p = (thDiff - Math.Floor(thDiff / 360.0) * 360.0) / 360;
-            //
-            //     var x = inPoints[i].X;
-            //     var y = inPoints[i].Y;
-            //
-            //     var p1 = 1 - p;
-            //     var pos = Tuple.Create((float)(p1 * (lastDelta.Item1 * p + delta.Item1 * p1)),
-            //         (float)(p1 * (lastDelta.Item2 * p + delta.Item2 * p1)),
-            //         (float)(p1 * (lastDelta.Item3 * p + delta.Item3 * p1)));
-            //     var pdelta = LessMath.SolveTransform2D(pos, delta);
-            //
-            //     var dth = pdelta.Item3;// * Math.PI / 180; // *0.9;
-            //     var cos = Math.Cos(-dth);
-            //     var sin = Math.Sin(-dth);
-            //     res.Add(new Point3D(
-            //         (float)(x * cos - y * sin + pdelta.Item1),
-            //         (float)(x * sin + y * cos + pdelta.Item2),
-            //         inPoints[i].Z));
-            //     // ret[i].X = (float)(x * cos - y * sin + pdelta.Item1); // * 0.9;
-            //     // ret[i].Y = (float)(x * sin + y * cos + pdelta.Item2); // * 0.9;
-            // }
-            //
-            // return res;
         }
 
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
@@ -936,6 +741,39 @@ namespace Detour3D.UI
             }
 
         }
+
+        public class LidarOutput2D
+        {
+            public LidarPoint2D[] points;
+            public int tick;
+
+            public static unsafe LidarOutput2D deserialize(byte[] bytes)
+            {
+                var ret = new LidarOutput2D();
+                ret.tick = BitConverter.ToInt32(bytes, 0);
+                ret.points = new LidarPoint2D[BitConverter.ToInt32(bytes, 4)];
+                fixed (byte* ptr = bytes)
+                fixed (void* ptrs = ret.points)
+                {
+                    CopyMemory(ptrs, ptr + 8, ret.points.Length * sizeof(LidarPoint2D));
+                }
+
+                return ret;
+            }
+            public static byte[] Unzip(byte[] bytes)
+            {
+                using (var msi = new MemoryStream(bytes))
+                using (var mso = new MemoryStream())
+                {
+                    using (var gs = new GZipStream(msi, CompressionMode.Decompress))
+                        gs.CopyTo(mso);
+
+                    return mso.ToArray();
+                }
+            }
+
+        }
+
 
         private static unsafe List<LidarPoint3D> ReadPointsData(string lidarPath)
         {
@@ -1026,30 +864,16 @@ namespace Detour3D.UI
 
                 var fire = clockWise == 1 ? azimuth - startAngle : startAngle - azimuth;
                 if (fire < 0) fire += 360;
-                if (is2D) points.Add(new Point3D(x, y, z, 0, fire / 360f, 0));
-                else points.Add(new Point3D(x, y, z, 0, fire / 360f, (int)rawPoints[i].intensity));
 
-                if (is2D)
+                points.Add(new Point3D(x, y, z, 0, fire / 360f, (int)rawPoints[i].intensity));
+
+                if (!useDistortionRectification)
                 {
-                    if (!useDistortionRectification)
+                    tmp.Add(new Vertex()
                     {
-                        tmp.Add(new Vertex()
-                        {
-                            position = new Vector3(x, y, z),
-                            color = 128,
-                        });
-                    }
-                }
-                else
-                {
-                    if (!useDistortionRectification)
-                    {
-                        tmp.Add(new Vertex()
-                        {
-                            position = new Vector3(x, y, z),
-                            color = rawPoints[i].intensity,
-                        });
-                    }
+                        position = new Vector3(x, y, z),
+                        color = rawPoints[i].intensity,
+                    });
                 }
             }
 
@@ -1067,22 +891,11 @@ namespace Detour3D.UI
                 for (var i = 0; i < interpolated.Count; ++i)
                 {
                     var p = interpolated[i];
-                    if (is2D)
+                    tmp.Add(new Vertex()
                     {
-                        tmp.Add(new Vertex()
-                        {
-                            position = new Vector3(p.X, p.Y, p.Z),
-                            color = 128,
-                        });
-                    }
-                    else
-                    {
-                        tmp.Add(new Vertex()
-                        {
-                            position = new Vector3(p.X, p.Y, p.Z),
-                            color = points[i].Color,
-                        });
-                    }
+                        position = new Vector3(p.X, p.Y, p.Z),
+                        color = points[i].Color,
+                    });
                 }
             }
 
@@ -1264,9 +1077,7 @@ namespace Detour3D.UI
                             ? deltaMatrix * new Matrix4(pair.Value.ModelMatrix)
                             : new Matrix4(pair.Value.ModelMatrix));
                     shader.SetFloat("pointSize", pair.Value.Hovered ? 3f : 1f);
-                    Vector4 colorshader = new Vector4(1, 1, 1, 1);
-                    shader.SetVector4("assignColor",pair.Value.Selected? colorshader: Vector4.Zero);
-                    //shader.SetVector4("assignColor", colorshader);
+                    shader.SetVector4("assignColor", Vector4.Zero);
                     shader.SetFloat("useIntensityColor", 1f);
 
                     pair.Value.Mesh.Draw();

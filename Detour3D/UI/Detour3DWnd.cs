@@ -42,6 +42,7 @@ using Vector3 = OpenTK.Vector3;
 using Three;
 using THREE;
 using ThreeCs.Lights;
+using KeyPressEventArgs = OpenTK.KeyPressEventArgs;
 using Vector4 = System.Numerics.Vector4;
 
 namespace Fake.UI
@@ -103,6 +104,7 @@ namespace Fake.UI
             glc.MouseMove += OnGlcMouseMove;
             glc.MouseWheel += OnGlcMouseWheel;
             glc.KeyDown += GLControl_KeyDown;
+            glc.KeyUp += GLControl_KeyUp;
             glc.KeyPress += (o, args) =>
             {
                 if (_imgui_controller != null)
@@ -344,8 +346,10 @@ namespace Fake.UI
             Util.CheckGLError("done-frame");
         }
 
+        private bool IsEnd;
         private void GLControl_KeyDown(object sender, KeyEventArgs e)
         {
+            
             if (cc.KeyDown(e.KeyCode)) return;
             switch (e.KeyCode)
             {
@@ -366,22 +370,38 @@ namespace Fake.UI
                 case Keys.W:
                     DetourDraw.CurrentGizmoMode = MODE.WORLD;
                     break;
-                case Keys.F1:
+                case Keys.D1:
+                    //this.IsEnd = false;
+
+                    //while (!this.IsEnd)
+                    //{
+                    //    if (DetourDraw.dragSpeed < 0.5)
+                    //    {
+                    //        DetourDraw.dragSpeed += 0.005f;
+                    //        DetourDraw.ManualKeys[0] = true;
+                    //    }
+                    //    else
+                    //    {
+                    //        this.IsEnd = false;
+                    //        DetourDraw.ManualKeys[0] = false;
+                    //    }
+
+                    //}
                     DetourDraw.ManualKeys[0] = true;
                     break;
-                case Keys.F2:
+                case Keys.D2:
                     DetourDraw.ManualKeys[1] = true;
                     break;
-                case Keys.F3:
+                case Keys.D3:
                     DetourDraw.ManualKeys[2] = true;
                     break;
-                case Keys.F4:
+                case Keys.D4:
                     DetourDraw.ManualKeys[3] = true;
                     break;
-                case Keys.F5:
+                case Keys.D5:
                     DetourDraw.ManualKeys[4] = true;
                     break;
-                case Keys.F6:
+                case Keys.D6:
                     DetourDraw.ManualKeys[5] = true;
                     break;
                 case Keys.Escape:
@@ -389,6 +409,60 @@ namespace Fake.UI
                     break;
             }
         }
+
+        private void GLControl_KeyUp(object sender, KeyEventArgs e)
+        {
+
+            if (!cc.KeyUp(e.KeyCode)) return;
+            switch (e.KeyCode)
+            {
+                case Keys.D1:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+                case Keys.D2:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+                case Keys.D3:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+                case Keys.D4:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+                case Keys.D5:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+                case Keys.D6:
+                    DetourDraw.dragSpeed = 0.01f;
+                    break;
+            }
+        }
+
+        //private void GLControl_KeyDown(object sender, KeyPressEventArgs e)
+        //{
+        //    if (cc.KeyDown(e.KeyCode)) return;
+        //    switch (e.KeyCode)
+        //    {
+        //        case Keys.D1:
+        //            DetourDraw.ManualKeys[0] = true;
+        //            break;
+        //        case Keys.D2:
+        //            DetourDraw.ManualKeys[1] = true;
+        //            break;
+        //        case Keys.D3:
+        //            DetourDraw.ManualKeys[2] = true;
+        //            break;
+        //        case Keys.D4:
+        //            DetourDraw.ManualKeys[3] = true;
+        //            break;
+        //        case Keys.D5:
+        //            DetourDraw.ManualKeys[4] = true;
+        //            break;
+        //        case Keys.D6:
+        //            DetourDraw.ManualKeys[5] = true;
+        //            break;
+        //    }
+        //}
+
 
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)

@@ -101,7 +101,7 @@ namespace Detour3D.UI
         private static string _radioLastName = ""; // last frame
         private static int _radioSelc = -1;
         public static bool[] ManualKeys = new bool[6];
-        private static float dragSpeed = 0.01f;
+        public static float dragSpeed = 0.01f;
         // public static bool EnableEyeDomeLighting = true;
         public static object ManualEyeDomeLock;
         public static int EyeDomeNum = 30;
@@ -429,43 +429,87 @@ namespace Detour3D.UI
                 if (ManualKeys[0])
                 {
                     ManualKeys[0] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[0] += dragSpeed;
+                    //float speed = dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        
+                        _vecTrans[0] += dragSpeed;
+                    }
                     else _vecRot[0] += dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
                 if (ManualKeys[1])
                 {
                     ManualKeys[1] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[0] -= dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        _vecTrans[0] -= dragSpeed;
+                    }
                     else _vecRot[0] -= dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
                 if (ManualKeys[2])
                 {
                     ManualKeys[2] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[1] += dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        _vecTrans[1] += dragSpeed;
+                    }
                     else _vecRot[1] += dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
                 if (ManualKeys[3])
                 {
                     ManualKeys[3] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[1] -= dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        _vecTrans[1] -= dragSpeed;
+                    }
                     else _vecRot[1] -= dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
                 if (ManualKeys[4])
                 {
                     ManualKeys[4] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[2] += dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        _vecTrans[2] += dragSpeed;
+                    }
                     else _vecRot[2] += dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
                 if (ManualKeys[5])
                 {
                     ManualKeys[5] = false;
-                    if (CurrentGizmoOp == OPERATION.TRANSLATE) _vecTrans[2] -= dragSpeed;
+                    if (CurrentGizmoOp == OPERATION.TRANSLATE)
+                    {
+                        _vecTrans[2] -= dragSpeed;
+                    }
                     else _vecRot[2] -= dragSpeed;
+                    if (dragSpeed < 0.08)
+                    {
+                        dragSpeed += 0.01f;
+                    }
                     manualChanged = true;
                 }
             }

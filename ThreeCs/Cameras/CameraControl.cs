@@ -38,5 +38,10 @@ namespace ThreeCs.Cameras
         {
             return false;
         }
+
+        public virtual bool KeyUp(Keys eKeyCode)
+        {
+            return true;
+        }
     }
 }
